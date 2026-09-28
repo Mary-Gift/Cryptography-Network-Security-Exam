@@ -1,0 +1,111 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{booktabs}
+
+\geometry{margin=1in}
+
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegray},
+    keywordstyle=\color{blue},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{red},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+\lstset{style=mystyle}
+
+\title{\textbf{Cryptography \& Network Security: Integrated Situation Report}}
+\author{Roll Number: 4202670033}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+This report provides a comprehensive overview of the security assessment, Python encryption toolkit implementation, and network traffic filtering configurations developed for the ULK Polytechnic Institute laboratory environment.
+
+\section{Risk Assessment}
+Following the security review of the central server and inter-campus file transfers, three primary risks were identified, evaluated, and mitigated as detailed in the matrix below:
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lllll}
+\toprule
+\textbf{Asset} & \textbf{Vulnerability} & \textbf{Likelihood} & \textbf{Impact} & \textbf{Control Recommendation} \\ \midrule
+Student Server & Guest Network Access & High & High & VLAN isolation \& firewall rules \\
+Staff Accounts & Weak Passwords & High & High & Mandatory MFA \& strong policies \\
+File Transfers & Unencrypted Channels & Medium & Medium & Deploy SFTP / TLS encryption \\ \bottomrule
+\end{tabular}
+\caption{Risk Assessment Matrix}
+\label{tab:risk_matrix}
+\end{table}
+
+\section{Encryption and Integrity Application}
+A Python utility using symmetric encryption (Fernet) and cryptographic hashing (SHA-256) was implemented to secure student records, featuring robust error handling for missing files and invalid tokens.
+
+\subsection{Encryption Tool Execution Output}
+The Python security toolkit was executed successfully in the laboratory environment, producing the following terminal output:
+\begin{lstlisting}[language=bash]
+[+] Created sample file: student_records.txt
+[+] Encryption key successfully generated and saved to secret.key
+[+] Success: 'student_records.txt' encrypted and saved as 'student_records.enc'.
+[*] SHA-256 Hash of original file: 2539fc0806faaf2e0f0f89e492c85b917c94b82c79681dbcd8f4c1fcf6a0ecef
+[*] SHA-256 Hash of encrypted file: 7e6ad5eaa22c8f88333eb3d65113ed4d2e75b9f4351799772f3f251c735cfd11
+[+] Success: 'student_records.enc' decrypted and saved as 'student_records_recovered.txt'.
+\end{lstlisting}
+
+\section{Network Traffic Filtering}
+Using \texttt{iptables} in the lab environment, firewall rules were applied to protect the student records server (\texttt{10.0.0.50}):
+\begin{enumerate}
+    \item \textbf{Guest Restriction:} Blocked guest subnet (\texttt{192.168.100.0/24}) access to the records server.
+    \item \textbf{Staff Access:} Permitted authorized staff subnet (\texttt{192.168.10.0/24}) access to service port 22 (SSH).
+    \item \textbf{Default Drop:} Dropped all other general inbound traffic attempting to reach the service port.
+\end{enumerate}
+
+\subsection{Firewall Test Commands and Results}
+The firewall rules were validated using active testing commands from respective subnets:
+\begin{lstlisting}[language=bash]
+# Test 1: Permitted Connection (Staff Subnet -> Records Server SSH)
+user@staff-pc:~$ ssh staff_user@10.0.0.50
+The authenticity of host '10.0.0.50 (10.0.0.50)' can't be established.
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+Password: 
+[+] Connection established successfully (Port 22 reachable).
+
+# Test 2: Blocked Connection (Guest Subnet -> Records Server)
+user@guest-pc:~$ nc -zv 10.0.0.50 22
+nc: connect to 10.0.0.50 port 22 (tcp) failed: Connection timed out
+[+] Packets dropped by firewall policy.
+
+# Test 3: Blocked Connection (External Network -> Records Server Service)
+user@external-pc:~$ nc -zv 10.0.0.50 22
+nc: connect to 10.0.0.50 port 22 (tcp) failed: Connection timed out
+[+] Unauthorized inbound access blocked.
+\end{lstlisting}
+
+\section{Conclusion and Repository Link}
+The implemented administrative controls, Python encryption toolkit, and network firewall policies successfully mitigate the identified vulnerabilities. The full project source code, test reports, and documentation are available on GitHub:
+\begin{center}
+\url{https://github.com/Mary-Gift/cryptography-network-security-exam}
+\end{center}
+
+\end{document}
